@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { parseEther, formatEther } from 'viem';
-import { useContractRead, useContractWrite } from 'wagmi';
-import { Coins, Lock, Timer } from 'lucide-react';
-import { magTokenABI } from '../contracts/magToken';
+import React, { useState } from "react";
+import { parseEther, formatEther } from "viem";
+import { useContractRead, useContractWrite } from "wagmi";
+import { Coins, Lock, Timer } from "lucide-react";
+import { magTokenABI } from "../contracts/magToken";
 
-const MAG_TOKEN_ADDRESS = '0x71da932ccda723ba3ab730c976bc66daaf9c598c';
+const MAG_TOKEN_ADDRESS = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
 
 interface PoolConfig {
   totalPoolSize: number;
@@ -22,13 +22,13 @@ interface StakingPoolProps {
 }
 
 export default function StakingPool({ config, isConnected, address }: StakingPoolProps) {
-  const [stakeAmount, setStakeAmount] = useState('');
+  const [stakeAmount, setStakeAmount] = useState("");
   const [selectedLockPeriod, setSelectedLockPeriod] = useState(config.lockPeriods[0]);
 
   const { data: balance } = useContractRead({
     address: MAG_TOKEN_ADDRESS,
     abi: magTokenABI,
-    functionName: 'balanceOf',
+    functionName: "balanceOf",
     args: [address],
     enabled: !!address,
   });
@@ -36,7 +36,7 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
   const { write: stake } = useContractWrite({
     address: MAG_TOKEN_ADDRESS,
     abi: magTokenABI,
-    functionName: 'approve',
+    functionName: "approve",
   });
 
   const calculateReward = (amount: string, period: number) => {
@@ -47,13 +47,13 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
 
   const handleStake = async () => {
     if (!stakeAmount) return;
-    
+
     try {
       await stake({
         args: [MAG_TOKEN_ADDRESS, parseEther(stakeAmount)],
       });
     } catch (error) {
-      console.error('Staking failed:', error);
+      console.error("Staking failed:", error);
     }
   };
 
@@ -88,8 +88,8 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
                 onClick={() => setSelectedLockPeriod(period)}
                 className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                   selectedLockPeriod === period
-                    ? 'bg-[#FF7777] text-white'
-                    : 'bg-white/50 text-gray-700 hover:bg-[#FF7777]/10'
+                    ? "bg-[#FF7777] text-white"
+                    : "bg-white/50 text-gray-700 hover:bg-[#FF7777]/10"
                 }`}
               >
                 {period} Days
@@ -101,9 +101,7 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
         {isConnected && (
           <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
             <span className="text-gray-700">Your Balance</span>
-            <span className="font-medium text-gray-800">
-              {balance ? formatEther(balance) : '0'} MAG
-            </span>
+            <span className="font-medium text-gray-800">{balance ? formatEther(balance) : "0"} MAG</span>
           </div>
         )}
       </div>
@@ -154,7 +152,7 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
           >
             {parseFloat(stakeAmount) < config.minimumStake
               ? `Minimum stake is ${config.minimumStake} MAG`
-              : 'Stake MAG'}
+              : "Stake MAG"}
           </button>
         </div>
       ) : (
