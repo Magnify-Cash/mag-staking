@@ -1,15 +1,28 @@
-import React from 'react';
-import { createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mainnet } from 'wagmi/chains';
-import { injected } from 'wagmi/connectors';
-import { Coins } from 'lucide-react';
-import StakingPool from './components/StakingPool';
+import { createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { mainnet } from "wagmi/chains";
+import { Coins } from "lucide-react";
+import StakingPool from "./components/StakingPool";
+import { ConnectKitProvider, getDefaultConfig, ConnectKitButton } from "connectkit";
 
-const config = createConfig({
-  chains: [mainnet],
-  connectors: [injected()],
-});
+const config = createConfig(
+  getDefaultConfig({
+    // Your dApps chains
+    chains: [mainnet],
+
+    // Required API Keys
+    walletConnectProjectId: "",
+
+    // Required App Info
+    appName: "Magnify.Cash",
+
+    // Optional App Info
+    appDescription: "Decentralized Credit Markets",
+    appUrl: "https://magnify.cash",
+    appIcon:
+      "https://cdn.prod.website-files.com/6642383304e03808c6c1b5dd/664507a2a06009cee4e7ddcd_Square%20with%20Rounded%20Corners%20(Gradient)%20(3).svg",
+  }),
+);
 
 const queryClient = new QueryClient();
 
@@ -19,7 +32,7 @@ const poolConfig = {
   rewardPeriod: 12,
   monthlyReward: 250_000,
   minimumStake: 100,
-  lockPeriods: [30, 60, 90]
+  lockPeriods: [30, 60, 90],
 };
 
 function StakingDapp() {
@@ -47,12 +60,18 @@ function StakingDapp() {
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => connect()}
-            className="bg-[#FF7777] hover:bg-[#ff5555] text-white px-6 py-2 rounded-lg transition-colors font-semibold"
-          >
-            Connect Wallet
-          </button>
+          <ConnectKitButton.Custom>
+            {({ show }) => {
+              return (
+                <button
+                  onClick={show}
+                  className="bg-[#FF7777] hover:bg-[#ff5555] text-white px-6 py-2 rounded-lg transition-colors font-semibold"
+                >
+                  Connect Wallet
+                </button>
+              );
+            }}
+          </ConnectKitButton.Custom>
         )}
       </nav>
 
@@ -60,17 +79,13 @@ function StakingDapp() {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">MAG Token Staking Pool</h2>
           <p className="text-gray-700 max-w-2xl mx-auto">
-            Stake your MAG tokens to earn rewards and participate in the ecosystem's growth. 
-            With a {poolConfig.annualAPY}% APY and flexible lock periods, maximize your token utility.
+            Stake your MAG tokens to earn rewards and participate in the ecosystem's growth. With a{" "}
+            {poolConfig.annualAPY}% APY and flexible lock periods, maximize your token utility.
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <StakingPool
-            config={poolConfig}
-            isConnected={isConnected}
-            address={address}
-          />
+          <StakingPool config={poolConfig} isConnected={isConnected} address={address} />
         </div>
 
         <div className="mt-16 bg-white/30 backdrop-blur-lg rounded-2xl p-8 border border-[#FF7777]/20 max-w-4xl mx-auto">
@@ -103,7 +118,9 @@ function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <StakingDapp />
+        <ConnectKitProvider>
+          <StakingDapp />
+        </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
