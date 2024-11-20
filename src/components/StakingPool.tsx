@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { parseEther, formatEther } from "viem";
-import { useContractRead, useContractWrite } from "wagmi";
+import { useState } from "react";
+import { parseEther, formatEther, zeroAddress } from "viem";
+import { useReadContract, useWriteContract } from "wagmi";
 import { Coins, Lock, Timer } from "lucide-react";
 import { magTokenABI } from "../contracts/magToken";
 
-const MAG_TOKEN_ADDRESS = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
 
 interface PoolConfig {
   totalPoolSize: number;
@@ -25,18 +25,12 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
   const [stakeAmount, setStakeAmount] = useState("");
   const [selectedLockPeriod, setSelectedLockPeriod] = useState(config.lockPeriods[0]);
 
-  const { data: balance } = useContractRead({
+  const { data: balance } = useReadContract({
     address: MAG_TOKEN_ADDRESS,
     abi: magTokenABI,
     functionName: "balanceOf",
     args: [address],
     enabled: !!address,
-  });
-
-  const { write: stake } = useContractWrite({
-    address: MAG_TOKEN_ADDRESS,
-    abi: magTokenABI,
-    functionName: "approve",
   });
 
   const calculateReward = (amount: string, period: number) => {
@@ -45,13 +39,24 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
     return (stakeValue * config.annualAPY * periodInYears) / 100;
   };
 
+  const { writeContractAsync: approve } = useWriteContract();
+  const { writeContractAsync: deposit } = useWriteContract();
+  // TODOs
+  // 1. For approve(), add staking contract address
+  // 2. For deposit(), add function definition
   const handleStake = async () => {
     if (!stakeAmount) return;
-
     try {
-      await stake({
-        args: [MAG_TOKEN_ADDRESS, parseEther(stakeAmount)],
+      console.log("Approving...");
+      await approve({
+        abi: magTokenABI,
+        address: MAG_TOKEN_ADDRESS,
+        functionName: "approve",
+        args: [zeroAddress, parseEther(stakeAmount)],
       });
+
+      console.log("Depositing...");
+      await deposit({});
     } catch (error) {
       console.error("Staking failed:", error);
     }
@@ -146,7 +151,7 @@ export default function StakingPool({ config, isConnected, address }: StakingPoo
           )}
 
           <button
-            onClick={handleStake}
+            onClick={() => handleStake()}
             disabled={!stakeAmount || parseFloat(stakeAmount) < config.minimumStake}
             className="w-full bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-lg transition-colors font-semibold"
           >
