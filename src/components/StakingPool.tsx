@@ -112,6 +112,7 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
         <Coins className="w-10 h-10 text-[#FF7777]" />
       </div>
 
+      {/* Staking Tiers */}
       <div className="space-y-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {stakingTiers.map((tier) => (
@@ -133,35 +134,9 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
             </button>
           ))}
         </div>
-
-        {isConnected && (
-          <>
-            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Account Balance</span>
-              <span className="font-medium text-gray-800">{balance ? formatEther(balance) : "0"} MAG</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Staked Balance</span>
-              <span className="font-medium text-gray-800">{formattedStakeBalance?.amount || "0"} MAG</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Lock Period Ends</span>
-              <span className="font-medium text-gray-800">{formattedStakeBalance?.lockEndTime || "N/A"}</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Current APY</span>
-              <span className="font-medium text-gray-800">{formattedStakeBalance?.apy || 0}%</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Available Rewards</span>
-              <span className="font-medium text-[#FF7777]">
-                {rewards && rewards > 0n ? formatEther(rewards) : "0"} MAG
-              </span>
-            </div>
-          </>
-        )}
       </div>
 
+      {/* Stake Amount and Tier Info */}
       {isConnected ? (
         <div className="space-y-6">
           <div className="space-y-2">
@@ -182,24 +157,6 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-[#FF7777] hover:text-[#ff5555] font-medium"
               >
                 MAX
-              </button>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={handleUnstake}
-                disabled={
-                  !isConnected || !formattedStakeBalance?.amount || formattedStakeBalance?.amount == 0
-                }
-                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-              >
-                Unstake MAG
-              </button>
-              <button
-                onClick={handleClaimRewards}
-                disabled={!isConnected || !rewards || rewards === 0n}
-                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-              >
-                Claim Rewards
               </button>
             </div>
           </div>
@@ -226,6 +183,7 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
             </div>
           )}
 
+          {/* Stake Action */}
           <button
             onClick={onStake}
             disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
@@ -238,6 +196,75 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
         <div className="text-center text-gray-600 py-4 bg-white/20 rounded-lg">
           Connect wallet to stake MAG tokens
         </div>
+      )}
+
+      {/* Account Info and Rewards */}
+      {isConnected && (
+        <>
+          <div className="space-y-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Account Balance */}
+              <div className="p-4 bg-white/20 rounded-lg">
+                <div className="flex justify-between text-gray-600">
+                  <span>Account Balance</span>
+                  <span className="font-medium text-gray-800">
+                    {balance ? formatEther(balance) : "0"} MAG
+                  </span>
+                </div>
+              </div>
+
+              {/* Staked Balance */}
+              <div className="p-4 bg-white/20 rounded-lg">
+                <div className="flex justify-between text-gray-600">
+                  <span>Staked Balance</span>
+                  <span className="font-medium text-gray-800">
+                    {formattedStakeBalance?.amount || "0"} MAG
+                  </span>
+                </div>
+                {formattedStakeBalance?.amount && (
+                  <div className="flex justify-between text-gray-600 mt-2">
+                    <span>Lock Period Ends</span>
+                    <span className="font-medium text-gray-800">
+                      {formattedStakeBalance?.lockEndTime || "N/A"}
+                    </span>
+                  </div>
+                )}
+                {formattedStakeBalance?.apy && (
+                  <div className="flex justify-between text-gray-600 mt-2">
+                    <span>Current APY</span>
+                    <span className="font-medium text-gray-800">{formattedStakeBalance?.apy || "0"}%</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rewards Info */}
+            <div className="p-4 bg-white/20 rounded-lg flex justify-between">
+              <span className="text-gray-600">Available Rewards</span>
+              <span className="font-medium text-[#FF7777]">
+                {rewards && rewards > 0n ? formatEther(rewards) : "0"} MAG
+              </span>
+            </div>
+
+            {/* Unstake and Claim Rewards Actions */}
+            <div className="flex gap-4 mt-6">
+              <button
+                onClick={handleUnstake}
+                disabled={!formattedStakeBalance?.amount || formattedStakeBalance?.amount == 0}
+                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+              >
+                Unstake MAG
+              </button>
+              <button
+                onClick={handleClaimRewards}
+                disabled={!rewards || rewards === 0n}
+                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+              >
+                Claim Rewards
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
