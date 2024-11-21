@@ -46,7 +46,7 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
     },
   });
 
-  const { handleStake, rewards } = useStaking(address);
+  const { handleStake, handleUnstake, handleClaimRewards, rewards } = useStaking(address);
 
   /**
    * Calculates estimated rewards based on stake amount and APY
@@ -136,15 +136,15 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
         {isConnected && (
           <>
             <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-              <span className="text-gray-700">Your Balance</span>
+              <span className="text-gray-700">Account Balance</span>
               <span className="font-medium text-gray-800">{balance ? formatEther(balance) : "0"} MAG</span>
             </div>
-            {rewards && rewards > 0n && (
-              <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
-                <span className="text-gray-700">Available Rewards</span>
-                <span className="font-medium text-[#FF7777]">{formatEther(rewards)} MAG</span>
-              </div>
-            )}
+            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
+              <span className="text-gray-700">Available Rewards</span>
+              <span className="font-medium text-[#FF7777]">
+                {rewards && rewards > 0n ? formatEther(rewards) : "0"} MAG
+              </span>
+            </div>
           </>
         )}
       </div>
@@ -169,6 +169,21 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-[#FF7777] hover:text-[#ff5555] font-medium"
               >
                 MAX
+              </button>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={handleUnstake}
+                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+              >
+                Unstake MAG
+              </button>
+              <button
+                onClick={handleClaimRewards}
+                disabled={!isConnected || !rewards || rewards === 0n}
+                className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+              >
+                Claim Rewards
               </button>
             </div>
           </div>

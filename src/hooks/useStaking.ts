@@ -32,23 +32,12 @@ export function useStaking(address?: string) {
     },
   });
 
-  const { writeContractAsync: stake } = useWriteContract();
-  const { writeContractAsync: unstake } = useWriteContract({
-    address: STAKING_CONTRACT_ADDRESS,
-    abi: magTieredStakingABI,
-    functionName: "unstake",
-  });
-  const { writeContractAsync: claimRewards } = useWriteContract({
-    address: STAKING_CONTRACT_ADDRESS,
-    abi: magTieredStakingABI,
-    functionName: "claimRewards",
-  });
-
   /**
    * Handles the staking operation
    * @param amount - Amount to stake in string format
    * @param lockPeriod - Lock period in days
    */
+  const { writeContractAsync: stake } = useWriteContract();
   const handleStake = async (amount: string, lockPeriod: number) => {
     console.info("[useStaking] Initiating stake:", { amount, lockPeriod });
     try {
@@ -65,10 +54,52 @@ export function useStaking(address?: string) {
     }
   };
 
+  /**
+   * Handles the unstaking operation
+   */
+  const { writeContractAsync: unstake } = useWriteContract();
+  const handleUnstake = async () => {
+    console.info("[useStaking] Initiating unstake");
+
+    try {
+      await unstake({
+        address: STAKING_CONTRACT_ADDRESS,
+        abi: magTieredStakingABI,
+        functionName: "unstake",
+      });
+      console.info("[useStaking] Unstake successful");
+    } catch (error) {
+      console.error("[useStaking] Unstake failed:", error);
+      throw error;
+    }
+  };
+
+  /**
+   * Handles claiming rewards
+   */
+  const { writeContractAsync: claimRewards } = useWriteContract();
+  const handleClaimRewards = async () => {
+    console.info("[useStaking] Initiating claim rewards");
+
+    try {
+      await claimRewards({
+        address: STAKING_CONTRACT_ADDRESS,
+        abi: magTieredStakingABI,
+        functionName: "claimRewards",
+      });
+      console.info("[useStaking] Claim rewards successful");
+    } catch (error) {
+      console.error("[useStaking] Claim rewards failed:", error);
+      throw error;
+    }
+  };
+
   return {
     stakingTiers,
     rewards,
     handleStake,
+    handleUnstake,
+    handleClaimRewards,
     unstake,
     claimRewards,
   };
