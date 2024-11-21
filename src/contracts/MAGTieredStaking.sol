@@ -50,7 +50,7 @@ contract MAGTieredStaking is ReentrancyGuard, Ownable, Pausable {
     event StakingTierAdded(uint256 lockPeriod, uint256 apy);
     event StakingTierUpdated(uint256 lockPeriod, uint256 apy);
 
-    constructor(address _magToken) {
+    constructor(address _magToken, address _owner) Ownable(_owner) Pausable() {
         require(_magToken != address(0), "Invalid token address");
         magToken = IMAG(_magToken);
 
