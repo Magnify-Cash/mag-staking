@@ -46,7 +46,8 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
     },
   });
 
-  const { handleStake, handleUnstake, handleClaimRewards, rewards } = useStaking(address);
+  const { handleStake, handleUnstake, handleClaimRewards, rewards, formattedStakeBalance } =
+    useStaking(address);
 
   /**
    * Calculates estimated rewards based on stake amount and APY
@@ -140,6 +141,18 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
               <span className="font-medium text-gray-800">{balance ? formatEther(balance) : "0"} MAG</span>
             </div>
             <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
+              <span className="text-gray-700">Staked Balance</span>
+              <span className="font-medium text-gray-800">{formattedStakeBalance?.amount || "0"} MAG</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
+              <span className="text-gray-700">Lock Period Ends</span>
+              <span className="font-medium text-gray-800">{formattedStakeBalance?.lockEndTime || "N/A"}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
+              <span className="text-gray-700">Current APY</span>
+              <span className="font-medium text-gray-800">{formattedStakeBalance?.apy || 0}%</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white/20 rounded-lg">
               <span className="text-gray-700">Available Rewards</span>
               <span className="font-medium text-[#FF7777]">
                 {rewards && rewards > 0n ? formatEther(rewards) : "0"} MAG
@@ -174,6 +187,9 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
             <div className="flex gap-4">
               <button
                 onClick={handleUnstake}
+                disabled={
+                  !isConnected || !formattedStakeBalance?.amount || formattedStakeBalance?.amount == 0
+                }
                 className="px-6 py-3 rounded-lg bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
               >
                 Unstake MAG

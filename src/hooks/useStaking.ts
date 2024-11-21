@@ -32,6 +32,29 @@ export function useStaking(address?: string) {
     },
   });
 
+  const { data: stakeBalance } = useReadContract({
+    address: STAKING_CONTRACT_ADDRESS,
+    abi: magTieredStakingABI,
+    functionName: "stakes",
+    args: [address as `0x${string}`],
+    enabled: !!address,
+    onError: (error) => {
+      console.error("[useStaking] Failed to fetch stake balance:", error);
+    },
+  });
+  const formattedStakeBalance = stakeBalance
+    ? {
+        amount: stakeBalance.amount ? parseFloat(formatEther(stakeBalance.amount)) : 0,
+        stakingStartTime: stakeBalance.stakingStartTime
+          ? new Date(Number(stakeBalance.stakingStartTime) * 1000).toLocaleString()
+          : "N/A",
+        lockEndTime: stakeBalance.lockEndTime
+          ? new Date(Number(stakeBalance.lockEndTime) * 1000).toLocaleString()
+          : "N/A",
+        apy: stakeBalance.apy || 0,
+      }
+    : null;
+
   /**
    * Handles the staking operation
    * @param amount - Amount to stake in string format
@@ -102,5 +125,7 @@ export function useStaking(address?: string) {
     handleClaimRewards,
     unstake,
     claimRewards,
+    stakeBalance,
+    formattedStakeBalance,
   };
 }
