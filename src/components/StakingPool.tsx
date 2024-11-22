@@ -216,7 +216,7 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
               <div className="flex justify-between">
                 <span className="text-gray-600">Selected Tier</span>
                 <span className="font-medium text-[#FF7777]">
-                  {(selectedTier!.apy / 100n).toString()}% APY
+                  {selectedTier ? (selectedTier.apy / 100n).toString() : ""}% APY
                 </span>
               </div>
               <div className="flex justify-between">
