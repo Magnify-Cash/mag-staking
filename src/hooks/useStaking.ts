@@ -86,6 +86,7 @@ export function useStaking(address?: string) {
       });
       console.info("[useStaking] Approve successful");
     } catch (error) {
+      window.alert(error);
       console.error("[useStaking] Approve failed:", error);
       throw error;
     }
@@ -108,6 +109,7 @@ export function useStaking(address?: string) {
       });
       console.info("[useStaking] Stake successful");
     } catch (error) {
+      window.alert(error);
       console.error("[useStaking] Stake failed:", error);
       throw error;
     }
@@ -128,6 +130,7 @@ export function useStaking(address?: string) {
       });
       console.info("[useStaking] Unstake successful");
     } catch (error) {
+      window.alert(error);
       console.error("[useStaking] Unstake failed:", error);
       throw error;
     }
@@ -148,6 +151,7 @@ export function useStaking(address?: string) {
       });
       console.info("[useStaking] Claim rewards successful");
     } catch (error) {
+      window.alert(error);
       console.error("[useStaking] Claim rewards failed:", error);
       throw error;
     }
