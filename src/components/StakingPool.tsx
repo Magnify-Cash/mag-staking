@@ -53,16 +53,24 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
   const calculateReward = useCallback((amount: string, apy: bigint | undefined) => {
     if (apy === undefined) return "0"; // Handle the case where apy is undefined
 
-    const stakeValue = BigInt(parseFloat(amount) * 1e18); // Convert stakeValue to BigInt (e.g., in wei)
-    const reward = (stakeValue * apy) / BigInt(100); // Perform the calculation using BigInt
+    // Convert stake value to BigInt (representing the value in smallest units, e.g., wei)
+    const stakeValue = BigInt(parseFloat(amount) * 1e18); // e.g., 1 MAG token -> 1 * 1e18 in smallest units
 
-    // Convert reward back to a decimal format (by dividing by 1e18) and then to string
-    const rewardInTokens = Number(reward) / 1e18; // Convert BigInt to Number and divide by 1e18 to get the token value
+    // Ensure that APY is in the decimal form (e.g., 1500n should become 15n for 15%)
+    const apyDecimal = apy / 100n; // Convert 1500n (1500%) to 15n (15%)
 
-    const rewardString = rewardInTokens.toFixed(18); // Convert to string with precision (optional: set your desired decimals)
+    // Calculate reward based on stake value and APY
+    const reward = (stakeValue * apyDecimal) / BigInt(100); // Multiply stakeValue by APY (now in decimal), divide by 100 for percentage
+
+    // Convert the reward back to human-readable format by dividing by 1e18 (to get MAG tokens)
+    const rewardInTokens = Number(reward) / 1e18; // Convert BigInt to Number, and divide by 1e18 to get token value
+
+    // Format the result to a maximum of 8 decimal places (optional: set your desired decimals)
+    const rewardString = rewardInTokens.toFixed(8); // Format with 8 decimal places
+
     console.debug("[StakingPool] Calculated reward:", { amount, apy, reward, rewardString });
 
-    return rewardString; // Return the formatted string
+    return rewardString; // Return the formatted reward as a string
   }, []);
 
   /**
