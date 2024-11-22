@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { formatEther } from "viem";
 import { useReadContract } from "wagmi";
 import { Coins, Lock, TrendingUp } from "lucide-react";
@@ -6,16 +6,9 @@ import { magTokenABI } from "../contracts/magToken";
 import { useStaking, MAG_TOKEN_ADDRESS } from "../hooks/useStaking";
 
 interface StakingTier {
-  lockPeriod: number;
-  apy: number;
+  lockPeriod: bigint;
+  apy: bigint;
 }
-
-// Available staking tiers with their respective lock periods and APY rates
-const stakingTiers: StakingTier[] = [
-  { lockPeriod: 30, apy: 15 }, // 15% APY
-  { lockPeriod: 60, apy: 22.5 }, // 22.5% APY
-  { lockPeriod: 90, apy: 30 }, // 30% APY
-];
 
 interface StakingPoolProps {
   isConnected: boolean;
@@ -29,8 +22,15 @@ interface StakingPoolProps {
 export default function StakingPool({ isConnected, address }: StakingPoolProps) {
   console.info("[StakingPool] Rendering with:", { isConnected, address });
 
+  const { handleStake, handleUnstake, handleClaimRewards, rewards, formattedStakeBalance, stakingTiers } =
+    useStaking(address);
   const [stakeAmount, setStakeAmount] = useState("");
-  const [selectedTier, setSelectedTier] = useState<StakingTier>(stakingTiers[0]);
+  const [selectedTier, setSelectedTier] = useState<StakingTier | undefined>(undefined);
+  useEffect(() => {
+    if (stakingTiers !== undefined) {
+      setSelectedTier(stakingTiers[0]);
+    }
+  }, [stakingTiers]);
 
   // Fetch user's MAG token balance
   const { data: balance } = useReadContract({
@@ -44,20 +44,25 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
     },
   });
 
-  const { handleStake, handleUnstake, handleClaimRewards, rewards, formattedStakeBalance } =
-    useStaking(address);
-
   /**
    * Calculates estimated rewards based on stake amount and APY
    * @param amount - Amount to stake
    * @param apy - Annual Percentage Yield
    * @returns Calculated reward amount
    */
-  const calculateReward = useCallback((amount: string, apy: number) => {
-    const stakeValue = parseFloat(amount) || 0;
-    const reward = (stakeValue * apy) / 100;
-    console.debug("[StakingPool] Calculated reward:", { amount, apy, reward });
-    return reward;
+  const calculateReward = useCallback((amount: string, apy: bigint | undefined) => {
+    if (apy === undefined) return "0"; // Handle the case where apy is undefined
+
+    const stakeValue = BigInt(parseFloat(amount) * 1e18); // Convert stakeValue to BigInt (e.g., in wei)
+    const reward = (stakeValue * apy) / BigInt(100); // Perform the calculation using BigInt
+
+    // Convert reward back to a decimal format (by dividing by 1e18) and then to string
+    const rewardInTokens = Number(reward) / 1e18; // Convert BigInt to Number and divide by 1e18 to get the token value
+
+    const rewardString = rewardInTokens.toFixed(18); // Convert to string with precision (optional: set your desired decimals)
+    console.debug("[StakingPool] Calculated reward:", { amount, apy, reward, rewardString });
+
+    return rewardString; // Return the formatted string
   }, []);
 
   /**
@@ -113,24 +118,26 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
       {/* Staking Tiers */}
       <div className="space-y-6 mb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stakingTiers.map((tier) => (
-            <button
-              key={tier.lockPeriod}
-              onClick={() => handleTierSelect(tier)}
-              className={`p-4 rounded-lg transition-all duration-300 ${
-                selectedTier.lockPeriod === tier.lockPeriod
-                  ? "bg-[#FF7777] text-white shadow-lg scale-105"
-                  : "bg-white/20 hover:bg-white/30"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <Lock className="w-5 h-5" />
-                <TrendingUp className="w-5 h-5" />
-              </div>
-              <div className="text-2xl font-bold mb-1">{tier.apy}% APY</div>
-              <div className="text-sm opacity-80">{tier.lockPeriod} Days Lock</div>
-            </button>
-          ))}
+          {stakingTiers !== undefined && selectedTier !== undefined
+            ? stakingTiers.map((tier) => (
+                <button
+                  key={tier.lockPeriod}
+                  onClick={() => handleTierSelect(tier)}
+                  className={`p-4 rounded-lg transition-all duration-300 ${
+                    selectedTier.lockPeriod === tier.lockPeriod
+                      ? "bg-[#FF7777] text-white shadow-lg scale-105"
+                      : "bg-white/20 hover:bg-white/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <Lock className="w-5 h-5" />
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <div className="text-2xl font-bold mb-1">{(tier.apy / 100n).toString()}% APY</div>
+                  <div className="text-sm opacity-80">{tier.lockPeriod.toString()} Days Lock</div>
+                </button>
+              ))
+            : null}
         </div>
       </div>
 
@@ -163,16 +170,18 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
             <div className="p-4 bg-white/20 rounded-lg space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Selected Tier</span>
-                <span className="font-medium text-[#FF7777]">{selectedTier.apy}% APY</span>
+                <span className="font-medium text-[#FF7777]">
+                  {(selectedTier!.apy / 100n).toString()}% APY
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Lock Period</span>
-                <span className="font-medium text-gray-800">{selectedTier.lockPeriod} Days</span>
+                <span className="font-medium text-gray-800">{selectedTier?.lockPeriod.toString()} Days</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Estimated Annual Reward</span>
                 <span className="font-medium text-[#FF7777]">
-                  {calculateReward(stakeAmount, selectedTier.apy).toFixed(2)} MAG
+                  {calculateReward(stakeAmount, selectedTier?.apy)} MAG
                 </span>
               </div>
               <div className="pt-2 text-xs text-gray-500">
