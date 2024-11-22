@@ -3,9 +3,7 @@ import { formatEther } from "viem";
 import { useReadContract } from "wagmi";
 import { Coins, Lock, TrendingUp } from "lucide-react";
 import { magTokenABI } from "../contracts/magToken";
-import { useStaking } from "../hooks/useStaking";
-
-const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+import { useStaking, MAG_TOKEN_ADDRESS } from "../hooks/useStaking";
 
 interface StakingTier {
   lockPeriod: number;

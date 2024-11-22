@@ -1,8 +1,10 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { magTieredStakingABI } from "../contracts/abis";
+import { magTokenABI } from "../contracts/magToken";
 
-const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9"; // Replace with actual deployed contract address
+const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
+const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
 
 /**
  * Custom hook for managing staking operations
@@ -60,10 +62,17 @@ export function useStaking(address?: string) {
    * @param amount - Amount to stake in string format
    * @param lockPeriod - Lock period in days
    */
+  const { writeContractAsync: approve } = useWriteContract();
   const { writeContractAsync: stake } = useWriteContract();
   const handleStake = async (amount: string, lockPeriod: number) => {
     console.info("[useStaking] Initiating stake:", { amount, lockPeriod });
     try {
+      await approve({
+        address: MAG_TOKEN_ADDRESS,
+        abi: magTokenABI,
+        functionName: "approve",
+        args: [STAKING_CONTRACT_ADDRESS, parseEther(amount)],
+      });
       await stake({
         address: STAKING_CONTRACT_ADDRESS,
         abi: magTieredStakingABI,
