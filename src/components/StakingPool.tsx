@@ -262,46 +262,48 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
               {/* Account Balance */}
               <div className="p-4 bg-white/20 rounded-lg">
                 <div className="flex justify-between text-gray-600">
-                  <span>Account Balance</span>
-                  <span className="font-medium text-gray-800">
-                    {balance ? formatEther(balance) : "0"} MAG
-                  </span>
+                  <span>Wallet Balance</span>
+                </div>
+                <div className="mt-2 text-gray-800 font-medium">
+                  {balance ? formatEther(balance) : "0"} MAG
                 </div>
               </div>
 
               {/* Staked Balance */}
               <div className="p-4 bg-white/20 rounded-lg">
-                <div className="flex justify-between text-gray-600">
+                <div className="text-gray-600">
                   <span>Staked Balance</span>
-                  <span className="font-medium text-gray-800">
+                  <div className="font-medium text-gray-800 mt-2">
                     {formattedStakeBalance?.amount || "0"} MAG
-                  </span>
+                  </div>
                 </div>
+
                 {formattedStakeBalance?.amount && (
-                  <div className="flex justify-between text-gray-600 mt-2">
+                  <div className="mt-2 text-gray-600">
                     <span>Lock Period Ends</span>
-                    <span className="font-medium text-gray-800">
+                    <div className="font-medium text-gray-800">
                       {formattedStakeBalance?.lockEndTime || "N/A"}
-                    </span>
+                    </div>
                   </div>
                 )}
+
                 {formattedStakeBalance?.apy ? (
-                  <div className="flex justify-between text-gray-600 mt-2">
+                  <div className="mt-2 text-gray-600">
                     <span>Current APY</span>
-                    <span className="font-medium text-gray-800">
-                      {formattedStakeBalance?.apy.toString() || "0"}%
-                    </span>
+                    <div className="font-medium text-gray-800">
+                      {(formattedStakeBalance.apy / 100n).toString() || "0"}%
+                    </div>
                   </div>
                 ) : null}
               </div>
             </div>
 
             {/* Rewards Info */}
-            <div className="p-4 bg-white/20 rounded-lg flex justify-between">
+            <div className="p-4 bg-white/20 rounded-lg">
               <span className="text-gray-600">Available Rewards</span>
-              <span className="font-medium text-[#FF7777]">
+              <div className="mt-2 text-[#FF7777] font-medium">
                 {rewards && rewards > 0n ? formatEther(rewards) : "0"} MAG
-              </span>
+              </div>
             </div>
 
             {/* Unstake and Claim Rewards Actions */}
