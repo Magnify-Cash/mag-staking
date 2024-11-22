@@ -3,8 +3,8 @@ import { parseEther, formatEther } from "viem";
 import { magTieredStakingABI } from "../contracts/abis";
 import { magTokenABI } from "../contracts/magToken";
 
-const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
-const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+export const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
+export const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
 
 /**
  * Custom hook for managing staking operations
