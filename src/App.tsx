@@ -11,7 +11,7 @@ const config = createConfig(
     chains: [mainnet],
 
     // Required API Keys
-    walletConnectProjectId: "",
+    walletConnectProjectId: "6f26f99d86d880b561988f69808456d3",
 
     // Required App Info
     appName: "Magnify.Cash",
