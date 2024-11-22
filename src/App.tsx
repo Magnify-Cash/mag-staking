@@ -1,4 +1,4 @@
-import { createConfig, WagmiProvider, useAccount, useConnect, useDisconnect } from "wagmi";
+import { createConfig, WagmiProvider, useAccount, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { mainnet } from "wagmi/chains";
 import { Coins } from "lucide-react";
@@ -37,7 +37,6 @@ const poolConfig = {
 
 function StakingDapp() {
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
   const { disconnect } = useDisconnect();
 
   return (

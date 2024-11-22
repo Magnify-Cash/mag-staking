@@ -1,8 +1,8 @@
 import { useReadContract, useWriteContract } from "wagmi";
-import { parseEther, zeroAddress } from "viem";
+import { parseEther, formatEther } from "viem";
 import { magTieredStakingABI } from "../contracts/abis";
 
-const STAKING_CONTRACT_ADDRESS = zeroAddress; // Replace with actual deployed contract address
+const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9"; // Replace with actual deployed contract address
 
 /**
  * Custom hook for managing staking operations
