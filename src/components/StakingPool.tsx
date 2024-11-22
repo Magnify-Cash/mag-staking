@@ -92,7 +92,7 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
   const onStake = async () => {
     if (!stakeAmount) return;
     if (!selectedTier) return;
-    if (allowance) {
+    if (allowance == null || allowance == undefined) {
       console.error("[StakingPool] Allowance check failed:", allowanceError);
       return;
     }
