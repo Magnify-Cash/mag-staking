@@ -1,9 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
-import { formatEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { useReadContract } from "wagmi";
 import { Coins, Lock, TrendingUp } from "lucide-react";
 import { magTokenABI } from "../contracts/magToken";
-import { useStaking, MAG_TOKEN_ADDRESS } from "../hooks/useStaking";
+import { useStaking, MAG_TOKEN_ADDRESS, STAKING_CONTRACT_ADDRESS } from "../hooks/useStaking";
 
 interface StakingTier {
   lockPeriod: bigint;
@@ -22,8 +22,21 @@ interface StakingPoolProps {
 export default function StakingPool({ isConnected, address }: StakingPoolProps) {
   console.info("[StakingPool] Rendering with:", { isConnected, address });
 
-  const { handleStake, handleUnstake, handleClaimRewards, rewards, formattedStakeBalance, stakingTiers } =
-    useStaking(address);
+  const {
+    handleStake,
+    handleUnstake,
+    handleClaimRewards,
+    rewards,
+    formattedStakeBalance,
+    stakingTiers,
+    useAllowance,
+    handleApprove,
+  } = useStaking(address);
+  const { allowance, error: allowanceError } = useAllowance(
+    address as `0x${string}`,
+    STAKING_CONTRACT_ADDRESS,
+  );
+
   const [stakeAmount, setStakeAmount] = useState("");
   const [selectedTier, setSelectedTier] = useState<StakingTier | undefined>(undefined);
   useEffect(() => {
@@ -78,6 +91,30 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
    */
   const onStake = async () => {
     if (!stakeAmount) return;
+    if (!selectedTier) return;
+    if (allowance) {
+      console.error("[StakingPool] Allowance check failed:", allowanceError);
+      return;
+    }
+
+    // Convert stakeAmount to BigInt in ether (we assume it's in ether)
+    const stakeAmountBigInt = parseEther(stakeAmount); // Converts stakeAmount (ether) to BigInt in wei
+    const allowanceBigInt = BigInt(allowance); // Ensure allowance is also BigInt (in wei)
+
+    // Log the values to check
+    console.log("Allowance:", allowanceBigInt);
+    console.log("Stake Amount in BigInt (wei):", stakeAmountBigInt);
+    console.log("Is stake amount > allowance?", stakeAmountBigInt > allowanceBigInt);
+
+    if (stakeAmountBigInt > allowanceBigInt) {
+      try {
+        await handleApprove(stakeAmount);
+        console.info("[StakingPool] Approval successful");
+      } catch (error) {
+        console.error("[StakingPool] Approval failed:", error);
+      }
+      return;
+    }
 
     console.info("[StakingPool] Initiating stake:", {
       amount: stakeAmount,
@@ -204,7 +241,11 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
             disabled={!stakeAmount || parseFloat(stakeAmount) <= 0}
             className="w-full bg-[#FF7777] hover:bg-[#ff5555] disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-lg transition-colors font-semibold"
           >
-            {parseFloat(stakeAmount) <= 0 ? "Enter an amount to stake" : "Stake MAG"}
+            {parseFloat(stakeAmount) <= 0
+              ? "Enter an amount to stake"
+              : BigInt(allowance || 0) < parseEther(stakeAmount)
+                ? "Approve MAG"
+                : "Stake MAG"}
           </button>
         </div>
       ) : (
@@ -244,12 +285,14 @@ export default function StakingPool({ isConnected, address }: StakingPoolProps) 
                     </span>
                   </div>
                 )}
-                {formattedStakeBalance?.apy && (
+                {formattedStakeBalance?.apy ? (
                   <div className="flex justify-between text-gray-600 mt-2">
                     <span>Current APY</span>
-                    <span className="font-medium text-gray-800">{formattedStakeBalance?.apy || "0"}%</span>
+                    <span className="font-medium text-gray-800">
+                      {formattedStakeBalance?.apy.toString() || "0"}%
+                    </span>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
 

@@ -57,15 +57,26 @@ export function useStaking(address?: string) {
       }
     : null;
 
-  /**
-   * Handles the staking operation
-   * @param amount - Amount to stake in string format
-   * @param lockPeriod - Lock period in days
-   */
+  // Define the handleAllowance function
+  const useAllowance = (ownerAddress: `0x${string}`, spenderAddress: `0x${string}`) => {
+    const { data: allowance, error } = useReadContract({
+      address: MAG_TOKEN_ADDRESS,
+      abi: magTokenABI,
+      functionName: "allowance",
+      args: [ownerAddress, spenderAddress],
+      onError: (error) => {
+        console.error("[useStaking] Failed to fetch allowance:", error);
+      },
+    });
+    if (error) {
+      console.error("Error fetching allowance:", error);
+      return { allowance: null, error };
+    }
+    return { allowance, error };
+  };
   const { writeContractAsync: approve } = useWriteContract();
-  const { writeContractAsync: stake } = useWriteContract();
-  const handleStake = async (amount: string, lockPeriod: number) => {
-    console.info("[useStaking] Initiating stake:", { amount, lockPeriod });
+  const handleApprove = async (amount: string) => {
+    console.info("[useStaking] Initiating stake:", { amount });
     try {
       await approve({
         address: MAG_TOKEN_ADDRESS,
@@ -73,11 +84,27 @@ export function useStaking(address?: string) {
         functionName: "approve",
         args: [STAKING_CONTRACT_ADDRESS, parseEther(amount)],
       });
+      console.info("[useStaking] Approve successful");
+    } catch (error) {
+      console.error("[useStaking] Approve failed:", error);
+      throw error;
+    }
+  };
+  /**
+   * Handles the staking operation
+   * @param amount - Amount to stake in string format
+   * @param lockPeriod - Lock period in days
+   */
+
+  const { writeContractAsync: stake } = useWriteContract();
+  const handleStake = async (amount: string, lockPeriod: bigint) => {
+    console.info("[useStaking] Initiating stake:", { amount, lockPeriod });
+    try {
       await stake({
         address: STAKING_CONTRACT_ADDRESS,
         abi: magTieredStakingABI,
         functionName: "stake",
-        args: [parseEther(amount), BigInt(lockPeriod)],
+        args: [parseEther(amount), lockPeriod],
       });
       console.info("[useStaking] Stake successful");
     } catch (error) {
@@ -136,5 +163,7 @@ export function useStaking(address?: string) {
     claimRewards,
     stakeBalance,
     formattedStakeBalance,
+    handleApprove,
+    useAllowance,
   };
 }
