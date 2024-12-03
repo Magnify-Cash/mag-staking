@@ -1,6 +1,7 @@
 import { createConfig, WagmiProvider, useAccount, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { mainnet } from "wagmi/chains";
+import { useChainId } from "wagmi";
 import { Coins } from "lucide-react";
 import StakingPool from "./components/StakingPool";
 import { ConnectKitProvider, getDefaultConfig, ConnectKitButton } from "connectkit";
@@ -38,6 +39,7 @@ const poolConfig = {
 function StakingDapp() {
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
+  const chainId = useChainId();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2DFFF9] via-[#DAEFFF] to-[#FF7777] text-gray-800">
@@ -84,7 +86,13 @@ function StakingDapp() {
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <StakingPool config={poolConfig} isConnected={isConnected} address={address} />
+          {isConnected ? (
+            <StakingPool address={address} chainId={chainId} />
+          ) : (
+            <div className="text-center text-gray-600 py-4 bg-white/20 rounded-lg">
+              Connect wallet to stake MAG tokens
+            </div>
+          )}
         </div>
 
         <div className="mt-16 bg-white/30 backdrop-blur-lg rounded-2xl p-8 border border-[#FF7777]/20 max-w-4xl mx-auto">

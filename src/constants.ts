@@ -1,0 +1,19 @@
+export const ETH_STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
+export const ETH_MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+export const BASE_STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x638478046feF55002860a603147017D01C88a128";
+export const BASE_MAG_TOKEN_ADDRESS: `0x${string}` = "0x59F680F431f5280e7662b96F2DFA195D1693852d";
+
+type AddressMap = {
+  1: `0x${string}`;
+  8453: `0x${string}`;
+};
+
+export const STAKING_ADDRESS_MAP: AddressMap = {
+  1: ETH_STAKING_CONTRACT_ADDRESS,
+  8453: BASE_STAKING_CONTRACT_ADDRESS,
+};
+
+export const TOKEN_ADDRESS_MAP: AddressMap = {
+  1: ETH_MAG_TOKEN_ADDRESS,
+  8453: BASE_MAG_TOKEN_ADDRESS,
+};
