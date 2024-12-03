@@ -3,8 +3,10 @@ import { parseEther, formatEther } from "viem";
 import { magTieredStakingABI } from "../contracts/abis";
 import { magTokenABI } from "../contracts/magToken";
 
-export const STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
-export const MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+export const ETH_STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x7DF91E0498A6b8cE4EfD991Ad863383Fae3701B9";
+export const ETH_MAG_TOKEN_ADDRESS: `0x${string}` = "0x71da932ccda723ba3ab730c976bc66daaf9c598c";
+export const BASE_STAKING_CONTRACT_ADDRESS: `0x${string}` = "0x638478046feF55002860a603147017D01C88a128";
+export const BASE_MAG_TOKEN_ADDRESS: `0x${string}` = "0x59F680F431f5280e7662b96F2DFA195D1693852d";
 
 /**
  * Custom hook for managing staking operations
@@ -15,7 +17,7 @@ export function useStaking(address?: string) {
   console.info("[useStaking] Initializing with address:", address);
 
   const { data: stakingTiers } = useReadContract({
-    address: STAKING_CONTRACT_ADDRESS,
+    address: ETH_STAKING_CONTRACT_ADDRESS,
     abi: magTieredStakingABI,
     functionName: "getStakingTiers",
     onError: (error) => {
@@ -24,7 +26,7 @@ export function useStaking(address?: string) {
   });
 
   const { data: rewards } = useReadContract({
-    address: STAKING_CONTRACT_ADDRESS,
+    address: ETH_STAKING_CONTRACT_ADDRESS,
     abi: magTieredStakingABI,
     functionName: "calculateRewards",
     args: [address as `0x${string}`],
@@ -35,7 +37,7 @@ export function useStaking(address?: string) {
   });
 
   const { data: stakeBalance } = useReadContract({
-    address: STAKING_CONTRACT_ADDRESS,
+    address: ETH_STAKING_CONTRACT_ADDRESS,
     abi: magTieredStakingABI,
     functionName: "stakes",
     args: [address as `0x${string}`],
@@ -60,7 +62,7 @@ export function useStaking(address?: string) {
   // Define the handleAllowance function
   const useAllowance = (ownerAddress: `0x${string}`, spenderAddress: `0x${string}`) => {
     const { data: allowance, error } = useReadContract({
-      address: MAG_TOKEN_ADDRESS,
+      address: ETH_MAG_TOKEN_ADDRESS,
       abi: magTokenABI,
       functionName: "allowance",
       args: [ownerAddress, spenderAddress],
@@ -79,10 +81,10 @@ export function useStaking(address?: string) {
     console.info("[useStaking] Initiating stake:", { amount });
     try {
       await approve({
-        address: MAG_TOKEN_ADDRESS,
+        address: ETH_MAG_TOKEN_ADDRESS,
         abi: magTokenABI,
         functionName: "approve",
-        args: [STAKING_CONTRACT_ADDRESS, parseEther(amount)],
+        args: [ETH_STAKING_CONTRACT_ADDRESS, parseEther(amount)],
       });
       console.info("[useStaking] Approve successful");
     } catch (error) {
@@ -102,7 +104,7 @@ export function useStaking(address?: string) {
     console.info("[useStaking] Initiating stake:", { amount, lockPeriod });
     try {
       await stake({
-        address: STAKING_CONTRACT_ADDRESS,
+        address: ETH_STAKING_CONTRACT_ADDRESS,
         abi: magTieredStakingABI,
         functionName: "stake",
         args: [parseEther(amount), lockPeriod],
@@ -124,7 +126,7 @@ export function useStaking(address?: string) {
 
     try {
       await unstake({
-        address: STAKING_CONTRACT_ADDRESS,
+        address: ETH_STAKING_CONTRACT_ADDRESS,
         abi: magTieredStakingABI,
         functionName: "unstake",
       });
@@ -145,7 +147,7 @@ export function useStaking(address?: string) {
 
     try {
       await claimRewards({
-        address: STAKING_CONTRACT_ADDRESS,
+        address: ETH_STAKING_CONTRACT_ADDRESS,
         abi: magTieredStakingABI,
         functionName: "claimRewards",
       });
