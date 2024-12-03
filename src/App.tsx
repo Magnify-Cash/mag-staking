@@ -1,6 +1,6 @@
 import { createConfig, WagmiProvider, useAccount, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { mainnet } from "wagmi/chains";
+import { mainnet, base } from "wagmi/chains";
 import { useChainId } from "wagmi";
 import { Coins } from "lucide-react";
 import StakingPool from "./components/StakingPool";
@@ -9,7 +9,7 @@ import { ConnectKitProvider, getDefaultConfig, ConnectKitButton } from "connectk
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [mainnet],
+    chains: [mainnet, base],
 
     // Required API Keys
     walletConnectProjectId: "6f26f99d86d880b561988f69808456d3",
@@ -50,15 +50,7 @@ function StakingDapp() {
         </div>
         {isConnected ? (
           <div className="flex items-center space-x-4">
-            <span className="text-sm bg-white/20 px-3 py-1 rounded-lg">
-              {address?.slice(0, 6)}...{address?.slice(-4)}
-            </span>
-            <button
-              onClick={() => disconnect()}
-              className="bg-[#FF7777] hover:bg-[#ff5555] text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Disconnect
-            </button>
+            <ConnectKitButton></ConnectKitButton>
           </div>
         ) : (
           <ConnectKitButton.Custom>
