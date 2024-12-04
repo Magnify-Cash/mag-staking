@@ -32,7 +32,7 @@ export default function StakingPool({ address, chainId }: StakingPoolProps) {
     stakingTiers,
     useAllowance,
     handleApprove,
-  } = useStaking(address);
+  } = useStaking(address, chainId);
   const { allowance, error: allowanceError } = useAllowance(
     address as `0x${string}`,
     STAKING_ADDRESS_MAP[chainId],
@@ -52,10 +52,6 @@ export default function StakingPool({ address, chainId }: StakingPoolProps) {
     abi: magTokenABI,
     functionName: "balanceOf",
     args: [address],
-    enabled: !!address,
-    onError: (error) => {
-      console.error("[StakingPool] Failed to fetch balance:", error);
-    },
   });
 
   /**

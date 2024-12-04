@@ -9,7 +9,7 @@ import { STAKING_ADDRESS_MAP, TOKEN_ADDRESS_MAP } from "../constants";
  * @param address - User's wallet address
  * @returns Object containing staking operations and data
  */
-export function useStaking(address?: string, chainId?: number) {
+export function useStaking(address: string, chainId: number) {
   console.info("[useStaking] Initializing with address:", address);
 
   const { data: stakingTiers } = useReadContract({

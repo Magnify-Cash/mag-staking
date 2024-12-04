@@ -78,8 +78,8 @@ function StakingDapp() {
         </div>
 
         <div className="max-w-2xl mx-auto">
-          {isConnected ? (
-            <StakingPool address={address} chainId={chainId} />
+          {isConnected && address && chainId ? (
+            <StakingPool address={address as `0x${string}`} chainId={chainId} />
           ) : (
             <div className="text-center text-gray-600 py-4 bg-white/20 rounded-lg">
               Connect wallet to stake MAG tokens
