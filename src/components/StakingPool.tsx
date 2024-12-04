@@ -263,17 +263,10 @@ export default function StakingPool({ address, chainId }: StakingPoolProps) {
                 <span>Staked Balance</span>
                 <div className="font-medium text-gray-800 mt-2">
                   {formattedStakeBalance?.amount || "0"} MAG
+                  <br />
+                  End Time: {formattedStakeBalance?.lockEndTime || "N/A"}
                 </div>
               </div>
-
-              {formattedStakeBalance?.amount && (
-                <div className="mt-2 text-gray-600">
-                  <span>Lock Period Ends</span>
-                  <div className="font-medium text-gray-800">
-                    {formattedStakeBalance?.lockEndTime || "N/A"}
-                  </div>
-                </div>
-              )}
 
               {formattedStakeBalance?.apy ? (
                 <div className="mt-2 text-gray-600">
