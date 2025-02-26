@@ -1,7 +1,7 @@
 import { createConfig, WagmiProvider, useAccount, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { mainnet, base } from "wagmi/chains";
-import { useChainId } from "wagmi";
+import { useChainId, http } from "wagmi";
 import { Coins } from "lucide-react";
 import StakingPool from "./components/StakingPool";
 import { ConnectKitProvider, getDefaultConfig, ConnectKitButton } from "connectkit";
@@ -10,6 +10,10 @@ const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
     chains: [mainnet, base],
+    transports: {
+      [mainnet.id]: http("https://rpc.flashbots.net"),
+      [base.id]: http("https://mainnet.base.org"),
+    },
 
     // Required API Keys
     walletConnectProjectId: "6f26f99d86d880b561988f69808456d3",
